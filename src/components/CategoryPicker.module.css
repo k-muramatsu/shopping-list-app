@@ -33,36 +33,115 @@
   color: #1a5fb4;
 }
 
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
 .arrow {
   font-size: 0.7rem;
   color: #999;
+}
+
+.panel {
+  background: white;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .items {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 12px 14px;
-  background: white;
 }
 
-.itemButton {
-  padding: 8px 14px;
+.itemTag {
+  display: inline-flex;
+  align-items: center;
   background: #f0f5ff;
   border: 1px solid #d0dff5;
   border-radius: 20px;
+  overflow: hidden;
+}
+
+.itemName {
+  padding: 8px 4px 8px 14px;
+  background: none;
+  border: none;
   font-size: 0.9rem;
   color: #333;
   cursor: pointer;
   white-space: nowrap;
 }
 
-.itemButton:hover {
-  background: #d8e8ff;
+.itemName:hover {
+  color: #4a90d9;
+}
+
+.itemName:active {
+  color: white;
+  background: #4a90d9;
+}
+
+.removeButton {
+  padding: 8px 10px 8px 4px;
+  background: none;
+  border: none;
+  color: #cc4444;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.removeButton:hover {
+  color: #aa0000;
+  background: #fee;
+}
+
+.addRow {
+  display: flex;
+  gap: 6px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.addInput {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.addInput:focus {
+  outline: none;
   border-color: #4a90d9;
 }
 
-.itemButton:active {
+.addButton {
+  width: 36px;
+  height: 36px;
   background: #4a90d9;
   color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addButton:hover {
+  background: #357abd;
 }

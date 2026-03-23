@@ -6,7 +6,6 @@ import { useLocalStorage } from "../hooks/useLocalStorage";
 import { ShoppingItem } from "./ShoppingItem";
 import { ItemSuggestions } from "./ItemSuggestions";
 import { CategoryPicker } from "./CategoryPicker";
-import { CategoryManager } from "./CategoryManager";
 import styles from "./ShoppingList.module.css";
 
 function mergeCategories(defaults: Category[], custom: Category[]): Category[] {
@@ -26,7 +25,6 @@ export function ShoppingList() {
   const [customCategories, setCustomCategories] = useLocalStorage<Category[]>("custom-categories", []);
   const [inputValue, setInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [showManager, setShowManager] = useState(false);
 
   const allCategories = mergeCategories(defaultCategories, customCategories);
 
@@ -64,6 +62,53 @@ export function ShoppingList() {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const handleAddItemToCategory = (categoryName: string, itemName: string) => {
+    setCustomCategories((prev) => {
+      const existing = prev.find((c) => c.name === categoryName);
+      if (existing) {
+        if (existing.items.includes(itemName)) return prev;
+        return prev.map((c) =>
+          c.name === categoryName ? { ...c, items: [...c.items, itemName] } : c
+        );
+      }
+      const defaultCat = defaultCategories.find((c) => c.name === categoryName);
+      return [...prev, { name: categoryName, icon: defaultCat?.icon ?? "📦", items: [itemName] }];
+    });
+  };
+
+  const handleDeleteItemFromCategory = (categoryName: string, itemName: string) => {
+    const defaultCat = defaultCategories.find((c) => c.name === categoryName);
+    const isDefaultItem = defaultCat?.items.includes(itemName);
+
+    if (isDefaultItem) {
+      setCustomCategories((prev) => {
+        const existing = prev.find((c) => c.name === categoryName);
+        if (existing) {
+          return prev.map((c) =>
+            c.name === categoryName
+              ? { ...c, items: c.items.filter((i) => i !== itemName), removedDefaults: [...(c as Category & { removedDefaults?: string[] }).removedDefaults ?? [], itemName] }
+              : c
+          );
+        }
+        return [...prev, { name: categoryName, icon: defaultCat?.icon ?? "📦", items: [], removedDefaults: [itemName] }];
+      });
+    } else {
+      setCustomCategories((prev) =>
+        prev.map((c) =>
+          c.name === categoryName
+            ? { ...c, items: c.items.filter((i) => i !== itemName) }
+            : c
+        )
+      );
+    }
+  };
+
+  const mergedWithRemovals = allCategories.map((cat) => {
+    const custom = customCategories.find((c) => c.name === cat.name) as (Category & { removedDefaults?: string[] }) | undefined;
+    if (!custom?.removedDefaults?.length) return cat;
+    return { ...cat, items: cat.items.filter((i) => !custom.removedDefaults!.includes(i)) };
+  });
+
   return (
     <div className={styles.container}>
       <form className={styles.form} onSubmit={handleSubmit}>
@@ -95,17 +140,13 @@ export function ShoppingList() {
         </button>
       </form>
 
-      <div className={styles.pickerHeader}>
-        <span className={styles.pickerTitle}>カテゴリから選択</span>
-        <button
-          className={styles.manageButton}
-          onClick={() => setShowManager(true)}
-          type="button"
-        >
-          編集
-        </button>
-      </div>
-      <CategoryPicker categories={allCategories} onSelect={addItem} />
+      <span className={styles.pickerTitle}>カテゴリから選択</span>
+      <CategoryPicker
+        categories={mergedWithRemovals}
+        onSelect={addItem}
+        onAddItem={handleAddItemToCategory}
+        onDeleteItem={handleDeleteItemFromCategory}
+      />
 
       {items.length === 0 ? (
         <p className={styles.empty}>リストは空です</p>
@@ -123,14 +164,6 @@ export function ShoppingList() {
             ))}
           </ul>
         </>
-      )}
-
-      {showManager && (
-        <CategoryManager
-          customCategories={customCategories}
-          onUpdate={setCustomCategories}
-          onClose={() => setShowManager(false)}
-        />
       )}
     </div>
   );
