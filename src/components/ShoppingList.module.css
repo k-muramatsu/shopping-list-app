@@ -50,6 +50,41 @@
   margin: 0;
 }
 
+.pickerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.pickerTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.manageButton {
+  padding: 4px 12px;
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.manageButton:hover {
+  background: #f0f0f0;
+  border-color: #999;
+}
+
+.listTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 8px 0 4px;
+}
+
 .empty {
   text-align: center;
   color: #999;

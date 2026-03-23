@@ -1,15 +1,34 @@
 import { useState } from "react";
 import type { ShoppingItem as ShoppingItemType } from "../types";
+import type { Category } from "../data/categories";
+import { categories as defaultCategories } from "../data/categories";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { ShoppingItem } from "./ShoppingItem";
 import { ItemSuggestions } from "./ItemSuggestions";
+import { CategoryPicker } from "./CategoryPicker";
+import { CategoryManager } from "./CategoryManager";
 import styles from "./ShoppingList.module.css";
+
+function mergeCategories(defaults: Category[], custom: Category[]): Category[] {
+  const merged = defaults.map((dc) => {
+    const cc = custom.find((c) => c.name === dc.name);
+    if (!cc) return dc;
+    const extraItems = cc.items.filter((i) => !dc.items.includes(i));
+    return { ...dc, items: [...dc.items, ...extraItems] };
+  });
+  const newCategories = custom.filter((c) => !defaults.some((d) => d.name === c.name));
+  return [...merged, ...newCategories];
+}
 
 export function ShoppingList() {
   const [items, setItems] = useLocalStorage<ShoppingItemType[]>("shopping-items", []);
   const [history, setHistory] = useLocalStorage<string[]>("item-history", []);
+  const [customCategories, setCustomCategories] = useLocalStorage<Category[]>("custom-categories", []);
   const [inputValue, setInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showManager, setShowManager] = useState(false);
+
+  const allCategories = mergeCategories(defaultCategories, customCategories);
 
   const addItem = (name: string) => {
     const trimmed = name.trim();
@@ -45,10 +64,6 @@ export function ShoppingList() {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleSelectSuggestion = (name: string) => {
-    addItem(name);
-  };
-
   return (
     <div className={styles.container}>
       <form className={styles.form} onSubmit={handleSubmit}>
@@ -71,7 +86,7 @@ export function ShoppingList() {
             <ItemSuggestions
               suggestions={history}
               filter={inputValue}
-              onSelect={handleSelectSuggestion}
+              onSelect={addItem}
             />
           )}
         </div>
@@ -80,19 +95,42 @@ export function ShoppingList() {
         </button>
       </form>
 
+      <div className={styles.pickerHeader}>
+        <span className={styles.pickerTitle}>カテゴリから選択</span>
+        <button
+          className={styles.manageButton}
+          onClick={() => setShowManager(true)}
+          type="button"
+        >
+          編集
+        </button>
+      </div>
+      <CategoryPicker categories={allCategories} onSelect={addItem} />
+
       {items.length === 0 ? (
         <p className={styles.empty}>リストは空です</p>
       ) : (
-        <ul className={styles.list}>
-          {items.map((item) => (
-            <ShoppingItem
-              key={item.id}
-              item={item}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-            />
-          ))}
-        </ul>
+        <>
+          <h2 className={styles.listTitle}>買い物リスト</h2>
+          <ul className={styles.list}>
+            {items.map((item) => (
+              <ShoppingItem
+                key={item.id}
+                item={item}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+              />
+            ))}
+          </ul>
+        </>
+      )}
+
+      {showManager && (
+        <CategoryManager
+          customCategories={customCategories}
+          onUpdate={setCustomCategories}
+          onClose={() => setShowManager(false)}
+        />
       )}
     </div>
   );
