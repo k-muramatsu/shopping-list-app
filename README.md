@@ -1,73 +1,93 @@
-# React + TypeScript + Vite
+# 買い物リストアプリ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+スーパーでの買い物をサポートするシンプルな買い物リスト管理アプリです。
 
-Currently, two official plugins are available:
+**公開URL**: https://k-muramatsu.github.io/shopping-list-app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 機能
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 買い物リスト管理
+- アイテムの追加（テキスト入力）
+- アイテムのチェック（購入済みに取り消し線を表示）
+- アイテムの削除
 
-## Expanding the ESLint configuration
+### 入力履歴からの候補表示
+- 過去に追加したアイテム名を履歴として保存
+- テキスト入力時に履歴をフィルタリングして候補表示
+- 候補をタップするとリストに追加
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### カテゴリから選択
+- 12カテゴリのプリセットアイテムからタップで追加
+- カテゴリはアイコン（絵文字）付きで視覚的に識別
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| カテゴリ | アイコン | 主なアイテム例 |
+|---|---|---|
+| 乳製品・卵 | 🥚 | 卵、ミルク、バター、チーズ |
+| 肉類 | 🥩 | 牛肉、豚肉、鶏肉、ウィンナー |
+| 魚介類 | 🐟 | 鮭、まぐろ、えび |
+| 野菜 | 🥬 | キャベツ、玉ねぎ、トマト |
+| 果物 | 🍎 | バナナ、りんご、みかん |
+| パン・麺類 | 🍞 | 食パン、うどん、スパゲッティ |
+| 米・穀物 | 🍚 | お米、シリアル |
+| 調味料 | 🧂 | 醤油、味噌、マヨネーズ |
+| 飲料 | 🥤 | お水、ビール、炭酸水 |
+| 冷凍食品 | 🧊 | 唐揚げ（冷凍）、冷凍餃子 |
+| 日用品 | 🧴 | ティッシュ、洗剤、ゴミ袋 |
+| 豆腐・納豆 | 🫘 | 豆腐、納豆、油揚げ |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### カテゴリのカスタマイズ
+- カテゴリ展開時に「+」でアイテムを追加（localStorage に保存）
+- カテゴリ展開時にアイテム横の「−」でアイテムを削除
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### データ永続化
+- 買い物リスト・入力履歴・カスタマイズ内容はすべて **localStorage** に保存
+- ページをリロードしても状態が維持される
+
+---
+
+## 技術構成
+
+| 項目 | 内容 |
+|---|---|
+| フレームワーク | React 18 + TypeScript |
+| ビルドツール | Vite |
+| スタイリング | CSS Modules |
+| データ保存 | localStorage |
+| ホスティング | GitHub Pages |
+| CI/CD | GitHub Actions |
+
+---
+
+## ファイル構成
+
+```
+src/
+├── data/
+│   └── categories.ts        # プリセットカテゴリ定義
+├── components/
+│   ├── ShoppingList.tsx     # メインコンポーネント（状態管理）
+│   ├── ShoppingItem.tsx     # 個別アイテム行
+│   ├── CategoryPicker.tsx   # カテゴリ選択UI
+│   └── ItemSuggestions.tsx  # 入力履歴候補表示
+├── hooks/
+│   └── useLocalStorage.ts   # localStorage カスタムフック
+├── types.ts                 # 型定義
+└── App.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 開発環境のセットアップ
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
+```
+
+ブラウザで http://localhost:5173/ を開く。
+
+```bash
+npm run build   # 本番ビルド
 ```
